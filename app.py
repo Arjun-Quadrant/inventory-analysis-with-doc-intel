@@ -1,18 +1,23 @@
 import os
 import psycopg2
-from flask import Flask, request, render_template, redirect
+from flask import Flask, request, render_template
 from azure.ai.formrecognizer import DocumentAnalysisClient
 from azure.core.credentials import AzureKeyCredential
+from azure.core.exceptions import ResourceExistsError
+
+from azure.storage.blob import BlobServiceClient
 from dotenv import load_dotenv
 
-# Load env variables
+# Load environment variables
 load_dotenv()
 
-# Azure Form Recognizer client
+# Azure clients
 form_client = DocumentAnalysisClient(
     endpoint=os.getenv("AZURE_FORM_RECOGNIZER_ENDPOINT"),
     credential=AzureKeyCredential(os.getenv("AZURE_FORM_RECOGNIZER_KEY"))
 )
+
+blob_service_client = BlobServiceClient.from_connection_string(os.getenv("AZURE_BLOB_CONNECTION_STRING"))
 
 # PostgreSQL connection
 conn = psycopg2.connect(os.getenv("POSTGRES_CONNECTION"))
@@ -25,14 +30,29 @@ app = Flask(__name__)
 def upload_pdf():
     if request.method == "POST":
         file = request.files["pdf_file"]
-        if file.filename.endswith(".pdf"):
+        if file and file.filename.endswith(".pdf"):
             pdf_bytes = file.read()
+
+            # Upload to blob storage in a new container
+            container_name = "inventory-forms"
+            try:
+                container_client = blob_service_client.create_container(container_name)
+            except ResourceExistsError:
+                container_client = blob_service_client.get_container_client(container_name)
+
+            blob_name = file.filename
+            
+            blob_client = container_client.get_blob_client(blob_name)
+            blob_client.upload_blob(pdf_bytes, overwrite=True)
+
+            # Analyze using Form Recognizer
             poller = form_client.begin_analyze_document("prebuilt-document", document=pdf_bytes)
             result = poller.result()
+
             table_name = result.paragraphs[0].content.replace(" ", "_")
             cursor.execute(f"DROP TABLE IF EXISTS {table_name}")
             conn.commit()
-            # Create table if not exists
+
             cursor.execute(f"""
             CREATE TABLE {table_name} (
                 inventory_id TEXT PRIMARY KEY,
@@ -47,13 +67,11 @@ def upload_pdf():
             )""")
             conn.commit()
 
-            # I can recreate the table structure with a 2D array
             for table in result.tables:
                 matrix = [[0 for _ in range(table.column_count)] for _ in range(table.row_count)]
                 for cell in table.cells:
                     matrix[cell.row_index][cell.column_index] = cell.content
 
-                # Skip the first row (header)
                 for row_index in range(1, len(matrix)):
                     row = matrix[row_index]
                     cursor.execute(f"""INSERT INTO {table_name}
