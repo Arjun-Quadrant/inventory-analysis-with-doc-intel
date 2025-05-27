@@ -1,12 +1,49 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>PDF Uploaded Successfully</title>
+    <style>
+        body {
+            background-color: #e8f5e9;
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .message-box {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #2e7d32;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #2e7d32;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #1b5e20;
+        }
+    </style>
 </head>
 <body>
-    <h1>The PDF has been uploaded successfully!</h1>
-    <form method="POST" action="/upload">
-        <button type="submit">Go Back</button>
-    </form>
+    <div class="message-box">
+        <h1>The inventory data has been uploaded successfully!</h1>
+        <form method="POST" action="/upload">
+            <button type="submit">Go Back</button>
+        </form>
+    </div>
 </body>
 </html>

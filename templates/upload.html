@@ -1,13 +1,52 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Upload PDF</title>
+    <meta charset="UTF-8">
+    <title>Upload PDFs</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .upload-container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        input[type="file"] {
+            margin-bottom: 20px;
+        }
+        input[type="submit"] {
+            padding: 10px 20px;
+            background-color: #4caf50;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+    </style>
 </head>
 <body>
-    <h1>Upload PDF</h1>
-    <form method="POST" action="/" enctype="multipart/form-data">
-        <input type="file" name="pdf_file" accept="application/pdf" required>
-        <input type="submit" value="Upload">
-    </form>
+    <div class="upload-container">
+        <h1>Upload Inventory Forms</h1>
+        <form method="POST" action="/" enctype="multipart/form-data">
+            <input type="file" name="pdf_file" accept="application/pdf" multiple required><br>
+            <input type="submit" value="Upload">
+        </form>
+    </div>
 </body>
 </html>
