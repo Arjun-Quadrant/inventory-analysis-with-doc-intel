@@ -38,15 +38,106 @@
         input[type="submit"]:hover {
             background-color: #45a049;
         }
+        .disabled-button {
+        background-color: #9e9e9e !important;
+        cursor: not-allowed !important;
+        border: none !important;
+        }
     </style>
 </head>
 <body>
-    <div class="upload-container">
-        <h1>Upload Inventory Forms</h1>
-        <form method="POST" action="/" enctype="multipart/form-data">
-            <input type="file" name="pdf_file" accept="application/pdf" multiple required><br>
-            <input type="submit" value="Upload">
-        </form>
+    
+<div class="upload-container">
+    <h1>Easily Analyze Products Your Store Sells</h1>
+
+    <form id="upload-form" method="POST" action="/" enctype="multipart/form-data">
+        <input type="file" id="pdf-input" name="pdf_file" accept="application/pdf" multiple required><br><br>
+
+        <!-- Upload & Clear buttons side-by-side -->
+        <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 15px;">
+            <input type="submit" value="Upload" style="padding: 10px 20px; background-color: #4caf50; border: none; border-radius: 6px; color: white; cursor: pointer; font-size: 16px;">
+            <button type="button" id="clear-btn" style="padding: 10px 20px; background-color: #f44336; border: none; border-radius: 6px; color: white; cursor: pointer; font-size: 16px;">
+                Clear
+            </button>
+        </div>
+    </form>
+
+    <!-- Load Synthetic Data button placed just below -->
+    <form id="synthetic-form" method="POST" action="/load-synthetic">
+        <div style="display: flex; justify-content: center;">
+            <input type="submit" id="load-btn" value="Load Synthetic Data"
+                style="padding: 10px 20px; background-color: #4caf50; border: none; border-radius: 6px; color: white; cursor: pointer; font-size: 16px;"
+                disabled>
+        </div>
+    </form>
+
+    <div id="question-section" style="margin-top: 30px;">
+        <form id="question-form" method="POST" action="/ask-question" style="margin-top: 30px;">
+            <div style="margin-bottom: 15px;">
+                <label><strong>Select a table:</strong></label><br>
+                {% for table in table_names %}
+                    <label><input type="radio" name="table_name" value="{{ table }}" required> {{ table }}</label><br>
+                {% endfor %}
+            </div>
+
+            <input type="text" id="question-input" name="question" placeholder="Type your question..." required
+                style="width: 300px; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px;">
+            <button type="submit"
+                    style="padding: 10px 20px; margin-left: 10px; background-color: #2196f3; color: white;
+                        border: none; border-radius: 6px; font-size: 16px; cursor: pointer;"
+                        id="submit-question-btn">
+                Submit Question
+            </button>
+        </form>  
     </div>
+
+    <div id="loader" style="display:none; margin-top: 20px;">
+        <div style="border: 6px solid #f3f3f3; border-top: 6px solid #4caf50; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto;"></div>
+        <p>Loading data...</p>
+    </div>
+
+    <style>
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    </style>
+
+    <script>
+        const uploadForm = document.getElementById("upload-form");
+        const syntheticForm = document.getElementById("synthetic-form");
+        const loader = document.getElementById("loader");
+        const pdfInput = document.getElementById("pdf-input");
+        const clearBtn = document.getElementById("clear-btn");
+        const loadBtn = document.getElementById("load-btn");
+        const questionButton = document.getElementById("submit-question-btn");
+
+        function showLoader() {
+            loader.style.display = "block";
+        }
+
+        uploadForm.addEventListener("submit", showLoader);
+        syntheticForm.addEventListener("submit", showLoader);
+
+        // Clear file input
+        clearBtn.addEventListener("click", function () {
+            pdfInput.value = "";
+        });
+
+        // Enable Load button only if tables exist
+        fetch("/check-tables")
+        .then(res => res.json())
+        .then(data => {
+            if (data.has_tables) {
+                loadBtn.disabled = false;
+                questionButton.disabled = false;
+            } else {
+                loadBtn.disabled = true;
+                questionButton.disabled = true;
+                loadBtn.classList.add("disabled-button");
+                questionButton.classList.add("disabled-button");
+            }
+        });
+    </script>
 </body>
 </html>
