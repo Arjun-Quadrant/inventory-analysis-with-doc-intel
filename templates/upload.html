@@ -140,7 +140,25 @@
         </div>
 
         <!-- Loader -->
-        <div id="loader"><strong>Loading...</strong></div>
+        <div id="loader" style="display: none; text-align: center; margin-top: 30px;">
+            <div style="
+                margin: 0 auto;
+                width: 40px;
+                height: 40px;
+                border: 5px solid #ccc;
+                border-top: 5px solid #1976d2;
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+            "></div>
+            <p style="margin-top: 10px;">Loading...</p>
+        </div>
+
+        <style>
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        </style>
 
         <!-- Toast -->
         <div id="toast">{{ toast_message }}</div>
