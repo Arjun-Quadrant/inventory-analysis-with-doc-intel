@@ -131,6 +131,7 @@ def ask_question():
         ORDER BY embedding <=> azure_openai.create_embeddings('{os.getenv("AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME")}', '{question}')::vector
         LIMIT 10;
     """)
+    conn.commit()
     results = cursor.fetchall()
     results = [result[0] for result in results]
     return render_template("answer.html", table=selected_table, answer_list=results)
