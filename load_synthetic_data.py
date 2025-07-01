@@ -106,7 +106,7 @@ def insert_synthetic_data(table_name):
         PRIMARY KEY (inventory_id)
     )""")
     conn.commit()
-    cursor.execute(f"ALTER TABLE bellevue ADD COLUMN IF NOT EXISTS spanish_description TEXT")
+    cursor.execute(f"ALTER TABLE {table_name} ADD COLUMN IF NOT EXISTS spanish_description TEXT")
     conn.commit()
     name_to_description = generate_descriptions()
     ids = generate_unique_ids(len(name_to_description) * 2)
